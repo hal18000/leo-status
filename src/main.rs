@@ -59,7 +59,11 @@ impl<'a> UsbInterface for GpsdoHidApiInterface<'a> {
         self.driver.get_serial_number_string()
     }
 
-    fn hid_get_feature_report(&self, report_id: u8, buf: &mut [u8]) -> Result<usize, Self::InterfaceError> {
+    fn hid_get_feature_report(
+        &self,
+        report_id: u8,
+        buf: &mut [u8],
+    ) -> Result<usize, Self::InterfaceError> {
         assert!(buf.len() >= 1);
         buf[0] = report_id;
 
@@ -92,15 +96,20 @@ fn main() {
         .open_device(&hid_api)
         .expect("could not open leo bodnar gpsdo usb");
 
-    
     let hid_interface = GpsdoHidApiInterface::new(&conn);
-    
+
     let gpsdo = GpsdoDevice::new(&hid_interface);
-    
+
     let serial_number = gpsdo.serial_number().expect("could not get serial number");
 
     let config = gpsdo.config().unwrap();
-    eprintln!("device configuration: {:?}, f3 {}, fout1 {}, fout2 {}", config, config.f3(), config.fout1(), config.fout2());
+    eprintln!(
+        "device configuration: {:?}, f3 {}, fout1 {}, fout2 {}",
+        config,
+        config.f3(),
+        config.fout1(),
+        config.fout2()
+    );
     eprintln!(
         "Using device with serial number {}",
         serial_number.unwrap_or_else(|| "unknown".to_owned())

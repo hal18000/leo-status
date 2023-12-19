@@ -6,11 +6,11 @@ The GPSDOs supported are:
 - [Leo Bodnar - Precision GPS Reference Clock](https://www.leobodnar.com/shop/index.php?main_page=product_info&cPath=107&products_id=234)
 - [Leo Bodnar - Mini Precision GPS Reference Clock](https://www.leobodnar.com/shop/index.php?main_page=product_info&cPath=107&products_id=301) [UNTESTED]
 
-| Platform     | Tested     | Status      |
-| ------------ | ---------- | ----------- |
-| MacOS 14.1.2 | Tested     | Working     |
-| Windows 11   | Tested     | Not working |
-| Ubuntu 22.04 | Not tested | Unknown     |
+| Platform     | Tested | Status      |
+| ------------ | ------ | ----------- |
+| MacOS 14.1.2 | Tested | Working     |
+| Windows 11   | Tested | Not working |
+| Ubuntu 22.04 | Tested | Working     |
 
 ## Usage
 

@@ -72,7 +72,7 @@ impl<'a> UsbInterface for GpsdoHidApiInterface<'a> {
         #[cfg(target_os = "windows")]
         {
             assert_eq!(buf[0], report_id);
-            buf.copy_within(1..size+1, 0)
+            buf.copy_within(1..size + 1, 0)
         }
 
         Ok(size)

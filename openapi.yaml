@@ -1,0 +1,143 @@
+openapi: 3.0.3
+info:
+  title: Leo Bodnar GPSDO Status
+  description: |-
+    A HTTP Server which advertises the status of a Leo Bodnar GPSDO.
+  license:
+    name: GNU General Public License v3.0
+    url: https://www.gnu.org/licenses/gpl-3.0.en.html#license-text
+  version: HEAD
+externalDocs:
+  description: View Project GitHub
+  url: https://github.com/hal18000/leo-status
+servers:
+  - url: https://petstore3.swagger.io/api/v3
+tags:
+  - name: status
+    description: Status API
+  - name: config
+    description: Config API
+paths:
+  /lock:
+    get:
+      tags:
+        - status
+      summary: Get the basic lock status of the GPSDO
+      description: |
+        Returns the lock status of the GPSDO, indicating whether the device's
+        PLL is locked and whether a GPS lock is acquired
+      operationId: getLock
+      responses:
+        '200':
+          description: The lock status has been returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LockStatus'
+  /config:
+    get:
+      tags:
+        - status
+      summary: Get the configuration of the GPSDO
+      description: |
+        Returns the configuration parameters of the GPSDO
+      operationId: getConfig
+      responses:
+        '200':
+          description: The config has been returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+components:
+  schemas:
+    LockStatus:
+      type: object
+      properties:
+        loss_count:
+          type: integer
+          format: int64
+          description: |
+            The number of times that the GPS lock has been lost since reboot
+          example: 1
+        sat_lock:
+          type: boolean
+          example: true
+          description: |
+            Whether the GPSDO has a lock on a GPS signal
+        pll_lock:
+          type: boolean
+          example: true
+          description: |
+            Whether the PLL is locked to the configured frequencies
+
+    Config:
+      type: object
+      properties:
+        output1:
+          type: boolean
+          example: true
+          description: Whether the output1 port of the GPSDO is active
+        output2:
+          type: boolean
+          example: true
+          description: Whether the output2 port of the GPSDO is active
+        level:
+          type: integer
+          example: 8
+          description: The drive level of the signal in milliamps
+        pll_params:
+          type: object
+          properties:
+            fin:
+              type: integer
+              example: 4687500
+              description: The frequency produced by the GPSDO TCXO
+            n3:
+              type: integer
+              example: 10
+              description: The divisor of fin before it enters the PLL
+            n2_hs:
+              type: integer
+              example: 11
+              description: The first divisor on the feedback loop
+            n2_ls:
+              type: integer
+              example: 1152
+              description: The second divisor on the feedback loop
+            n1_hs:
+              type: integer
+              example: 9
+              description: The shared divisor on the output from the PLL
+            nc1_ls:
+              type: integer
+              example: 12
+              description: The divisor after n1_hs, heading to port one
+            nc2_ls:
+              type: integer
+              example: 24
+              description: The divisor after n1_hs, heading to port two
+            skew:
+              type: integer
+              example: 0
+              description: The skew between port one and port two, 0 - 255
+            bw:
+              type: integer
+              example: 15
+              description: The PLL bandwidth mode
+            f3:
+              type: integer
+              example: 400000
+              description: The frequency of fin after division by n3
+            fosc:
+              type: integer
+              example: 4000000000
+              description: The frequency of the output of the PLL
+        fout1:
+          type: integer
+          example: 50000000
+          description: The frequency output on output1
+        fout2:
+          type: integer
+          example: 100000000
+          description: The frequency output on output2

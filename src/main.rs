@@ -69,6 +69,8 @@ impl<'a> UsbInterface for GpsdoHidApiInterface<'a> {
 
         let size = self.driver.get_feature_report(buf)?;
 
+        // Workaround - Windows hidapi returns the report id in the first byte
+        // of the result, so we correct this by moving everything backwards
         #[cfg(target_os = "windows")]
         {
             assert_eq!(buf[0], report_id);

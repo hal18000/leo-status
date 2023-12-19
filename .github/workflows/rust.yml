@@ -60,7 +60,7 @@ jobs:
         mkdir ${{ github.workspace }}/bundle
         
         cd ${{ github.workspace }}/artifacts
-        find -maxdepth 1 -mindepth 1 -type d -exec tar cvf  ${{ github.workspace }}/bundle/{}.tar {}  \;
+        find . -maxdepth 1 -mindepth 1 -type d -exec tar cvf  ${{ github.workspace }}/bundle/{}.tar {}  \;
 
     - name: Release
       uses: softprops/action-gh-release@v1

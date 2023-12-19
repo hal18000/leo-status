@@ -53,13 +53,21 @@ jobs:
 
     steps:
     - uses: actions/download-artifact@v4
+      with:
+        path: ${{ github.workspace }}/artifacts
+
+    - run: |
+        mkdir ${{ github.workspace }}/bundle
+        
+        cd ${{ github.workspace }}/artifacts
+        find -maxdepth 1 -mindepth 1 -type d -exec tar cvf  ${{ github.workspace }}/bundle/{}.tar {}  \;
 
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
         prerelease: true
         files: |
-          ${{ github.workspace }}/**/*
+          ${{ github.workspace }}/artifacts/*.tar
 
     permissions:
       contents: write

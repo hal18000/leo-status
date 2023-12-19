@@ -67,7 +67,7 @@ jobs:
       with:
         prerelease: true
         files: |
-          ${{ github.workspace }}/artifacts/*.tar
+          ${{ github.workspace }}/bundle/*.tar
 
     permissions:
       contents: write

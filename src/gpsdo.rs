@@ -13,6 +13,9 @@ pub(crate) trait UsbInterface {
     type InterfaceError;
 
     fn hid_read(&self, buf: &mut [u8]) -> Result<usize, Self::InterfaceError>;
+
+    /// Get a feature report from the device. The result should be stored in buf, with the zeroth byte being the first data byte.
+    /// The report byte should not be included. The caller will provide a buffer which is n+1 in size, where n is the data size.
     fn hid_get_feature_report(
         &self,
         report_id: u8,

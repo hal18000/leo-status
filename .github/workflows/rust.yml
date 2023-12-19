@@ -59,5 +59,7 @@ jobs:
       with:
         prerelease: true
         files: |
-          ${{ github.workspace }}/**/leo-bodnar
-          ${{ github.workspace }}/**/leo-bodnar.exe
+          ${{ github.workspace }}/**/*
+
+    permissions:
+      contents: write

@@ -37,7 +37,7 @@ impl<'a, Interface: UsbInterface> GpsdoDevice<'a, Interface> {
     }
 
     pub(crate) fn config(&self) -> Result<GpsdoConfig, GpsdoError<Interface::InterfaceError>> {
-        let mut buf = [0u8; 60];
+        let mut buf = [0u8; 61];
 
         let size = self.interface.hid_get_feature_report(9, &mut buf)?;
         if size < 21 {

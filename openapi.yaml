@@ -37,7 +37,7 @@ paths:
   /config:
     get:
       tags:
-        - status
+        - config
       summary: Get the configuration of the GPSDO
       description: |
         Returns the configuration parameters of the GPSDO

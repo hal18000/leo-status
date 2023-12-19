@@ -10,25 +10,31 @@ env:
 
 jobs:
   build:
-    name: Rust - ${{ matrix.toolchain }}
-    runs-on: ubuntu-latest
+    name: Rust - ${{ matrix.os }} - ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        toolchain:
-          - stable
-          - beta
-          - nightly
+        include:
+          - build: linux
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            install_deps_script: |
+              sudo apt-get install libhidapi-dev libudev-dev
+
+          - build: macos
+            os: macos-latest
+            target: x86_64-apple-darwin
+
+          - build: windows-gnu
+            os: windows-latest
+            target: x86_64-pc-windows-gnu
 
     steps:
     - uses: actions/checkout@v3
     - name: Install dependencies
-      run: sudo apt-get install libhidapi-dev libudev-dev
-    - name: Set rust version
-      run: |
-        rustup update ${{ matrix.toolchain }}
-        rustup default ${{ matrix.toolchain }}
-        rustup component add rustfmt
+      run: ${{ matrix.install_deps_script }}
+      if: matrix.install_deps_script != ''
     - name: Check formatting
       run: cargo fmt --check
     - name: Build

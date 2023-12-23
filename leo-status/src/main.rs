@@ -1,10 +1,20 @@
-use leo_status_driver::{GpsdoDevice, UsbInterface};
+mod dto;
 
-use std::time::Duration;
+use leo_status_driver::{GpsdoDevice, UsbInterface};
+use tiny_http::{Header, Response, Server};
+
+use std::{
+    net::SocketAddr,
+    str::FromStr,
+    sync::{Arc, RwLock},
+    time::Duration,
+};
 
 use hidapi::{DeviceInfo, HidApi, HidDevice, HidError};
 
 use clap::Parser;
+
+use crate::dto::{ConfigResponse, LockStatusResponse};
 
 #[derive(Parser, Debug)]
 #[command(version, about)]
@@ -20,6 +30,9 @@ struct Args {
 
     #[arg(long, help = "Print status of GPSDO to the console in JSON format")]
     stdout: bool,
+
+    #[arg(long, help = "HTTP host to listen on")]
+    http_host: SocketAddr,
 }
 
 const VID_LEO_BONDAR: u16 = 0x1dd2;
@@ -120,11 +133,64 @@ fn main() {
         serial_number.unwrap_or_else(|| "unknown".to_owned())
     );
 
+    let config_mutex: Arc<RwLock<Option<ConfigResponse>>> = Arc::new(RwLock::new(Option::None));
+    let status_mutex: Arc<RwLock<Option<LockStatusResponse>>> = Arc::new(RwLock::new(Option::None));
+
+    let http_host = args.http_host;
+    let http_config_mutex = config_mutex.clone();
+    let http_status_mutex = status_mutex.clone();
+    std::thread::spawn(move || {
+        let header_json_content_type = Header::from_str("Content-Type: application/json").unwrap();
+        let server = Server::http(http_host).unwrap();
+
+        for request in server.incoming_requests() {
+            let response: Response<_> = match request.url() {
+                "/config" | "/config/" => {
+                    match http_config_mutex
+                        .read()
+                        .expect("failed to get config mutex")
+                        .as_ref()
+                    {
+                        Some(value) => Response::from_data(
+                            serde_json::to_vec(value).expect("failed to serialize config"),
+                        )
+                        .with_header(header_json_content_type.clone()),
+
+                        None => Response::from_string("Service Unavailable - data not ready yet")
+                            .with_status_code(503),
+                    }
+                }
+                "/status" | "/status/" => {
+                    match http_status_mutex
+                        .read()
+                        .expect("failed to get status mutex")
+                        .as_ref()
+                    {
+                        Some(value) => Response::from_data(
+                            serde_json::to_vec(value).expect("failed to serialize status"),
+                        )
+                        .with_header(header_json_content_type.clone()),
+
+                        None => Response::from_string("Service Unavailable - data not ready yet")
+                            .with_status_code(503),
+                    }
+                }
+
+                _ => Response::from_string("Not Found").with_status_code(404),
+            };
+
+            if let Err(error) = request.respond(response) {
+                eprintln!("failed to respond to http request: {}", error);
+            }
+        }
+    });
+
     loop {
         let config = gpsdo.config().expect("failed to get config from gpsdo");
         let status = gpsdo.status().expect("failed to get status from gpsdo");
 
-        println!("config: {:?}, status: {:?}", config, status);
+        *config_mutex.write().unwrap() = Some(config.into());
+        *status_mutex.write().unwrap() = Some(status.into());
 
         std::thread::sleep(args.interval);
     }

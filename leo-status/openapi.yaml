@@ -56,7 +56,6 @@ components:
       properties:
         loss_count:
           type: integer
-          format: int64
           description: |
             The number of times that the GPS lock has been lost since reboot
           example: 1
@@ -70,6 +69,11 @@ components:
           example: true
           description: |
             Whether the PLL is locked to the configured frequencies
+        locked:
+          type: boolean
+          example: true
+          description: |
+            Whether the system is locked overall
 
     Config:
       type: object

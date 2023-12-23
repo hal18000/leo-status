@@ -12,6 +12,13 @@ The GPSDOs supported are:
 | Windows 11   | Tested | Working |
 | Ubuntu 22.04 | Tested | Working |
 
+## Structure
+
+This project is broken into two parts:
+
+- [`leo-status-driver`](./leo-status-driver/), a library which can be used to interface with a Leo Bodnar GPSDO.
+- [`leo-status`](./leo-status/), a command line application which reports the status of a connected Leo Bodnar GPSDO, using the leo-status-driver library.
+
 ## Usage
 
 Please note this program is currently a work in progress. Data is currently printed to the console in a debug format.

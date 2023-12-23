@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub(crate) enum GpsdoError<InterfaceError> {
+pub enum GpsdoError<InterfaceError> {
     #[error("underlying usb interface errored: {0}")]
     UsbInterfaceError(#[from] InterfaceError),
 
@@ -10,7 +10,7 @@ pub(crate) enum GpsdoError<InterfaceError> {
 }
 
 /// The UsbInterface trait allows for use of different USB backends, such as hidapi.
-pub(crate) trait UsbInterface {
+pub trait UsbInterface {
     type InterfaceError;
 
     /// Read a set of bytes from the device, storing them in the passed buffer. The number of stored bytes should be returned
@@ -28,22 +28,22 @@ pub(crate) trait UsbInterface {
     fn serial_number(&self) -> Result<Option<String>, Self::InterfaceError>;
 }
 
-pub(crate) struct GpsdoDevice<'a, Interface: UsbInterface> {
+pub struct GpsdoDevice<'a, Interface: UsbInterface> {
     interface: &'a Interface,
 }
 
 impl<'a, Interface: UsbInterface> GpsdoDevice<'a, Interface> {
-    pub(crate) fn new(interface: &'a Interface) -> Self {
+    pub fn new(interface: &'a Interface) -> Self {
         GpsdoDevice { interface }
     }
 
-    pub(crate) fn serial_number(
+    pub fn serial_number(
         &self,
     ) -> Result<Option<String>, GpsdoError<Interface::InterfaceError>> {
         Ok(self.interface.serial_number()?)
     }
 
-    pub(crate) fn config(&self) -> Result<GpsdoConfig, GpsdoError<Interface::InterfaceError>> {
+    pub fn config(&self) -> Result<GpsdoConfig, GpsdoError<Interface::InterfaceError>> {
         let mut buf = [0u8; 61];
 
         let size = self.interface.hid_get_feature_report(9, &mut buf)?;
@@ -83,7 +83,7 @@ impl<'a, Interface: UsbInterface> GpsdoDevice<'a, Interface> {
         })
     }
 
-    pub(crate) fn status(&self) -> Result<GpsdoStatus, GpsdoError<Interface::InterfaceError>> {
+    pub fn status(&self) -> Result<GpsdoStatus, GpsdoError<Interface::InterfaceError>> {
         let mut buf = [0u8; 2];
         let read_count = self.interface.hid_read(&mut buf)?;
 
@@ -111,7 +111,7 @@ impl<'a, Interface: UsbInterface> GpsdoDevice<'a, Interface> {
 }
 
 #[derive(Debug)]
-pub(crate) struct GpsdoConfig {
+pub struct GpsdoConfig {
     output1: bool,
     output2: bool,
     level: u8,
@@ -127,73 +127,73 @@ pub(crate) struct GpsdoConfig {
 }
 
 impl GpsdoConfig {
-    pub(crate) fn output1(&self) -> bool {
+    pub fn output1(&self) -> bool {
         self.output1
     }
 
-    pub(crate) fn output2(&self) -> bool {
+    pub fn output2(&self) -> bool {
         self.output2
     }
 
-    pub(crate) fn level(&self) -> u8 {
+    pub fn level(&self) -> u8 {
         self.level
     }
 
-    pub(crate) fn fin(&self) -> u32 {
+    pub fn fin(&self) -> u32 {
         self.fin
     }
 
-    pub(crate) fn n3(&self) -> u32 {
+    pub fn n3(&self) -> u32 {
         self.n3
     }
 
-    pub(crate) fn n2_hs(&self) -> u8 {
+    pub fn n2_hs(&self) -> u8 {
         self.n2_hs
     }
 
-    pub(crate) fn n2_ls(&self) -> u32 {
+    pub fn n2_ls(&self) -> u32 {
         self.n2_ls
     }
 
-    pub(crate) fn n1_hs(&self) -> u8 {
+    pub fn n1_hs(&self) -> u8 {
         self.n1_hs
     }
 
-    pub(crate) fn nc1_ls(&self) -> u32 {
+    pub fn nc1_ls(&self) -> u32 {
         self.nc1_ls
     }
 
-    pub(crate) fn nc2_ls(&self) -> u32 {
+    pub fn nc2_ls(&self) -> u32 {
         self.nc2_ls
     }
 
-    pub(crate) fn skew(&self) -> u8 {
+    pub fn skew(&self) -> u8 {
         self.skew
     }
 
-    pub(crate) fn bw(&self) -> u8 {
+    pub fn bw(&self) -> u8 {
         self.bw
     }
 
-    pub(crate) fn f3(&self) -> u32 {
+    pub fn f3(&self) -> u32 {
         self.fin / self.n3
     }
 
-    pub(crate) fn fosc(&self) -> u64 {
+    pub fn fosc(&self) -> u64 {
         self.fin as u64 * (self.n2_hs as u64 * self.n2_ls as u64) / self.n3 as u64
     }
 
-    pub(crate) fn fout1(&self) -> u64 {
+    pub fn fout1(&self) -> u64 {
         self.fosc() / (self.n1_hs as u64 * self.nc1_ls as u64)
     }
 
-    pub(crate) fn fout2(&self) -> u64 {
+    pub fn fout2(&self) -> u64 {
         self.fosc() / (self.n1_hs as u64 * self.nc2_ls as u64)
     }
 }
 
 #[derive(Debug)]
-pub(crate) struct GpsdoStatus {
+pub struct GpsdoStatus {
     loss_count: u8,
     sat_lock: bool,
     pll_lock: bool,
@@ -201,19 +201,19 @@ pub(crate) struct GpsdoStatus {
 }
 
 impl GpsdoStatus {
-    pub(crate) fn loss_count(&self) -> u8 {
+    pub fn loss_count(&self) -> u8 {
         self.loss_count
     }
 
-    pub(crate) fn sat_locked(&self) -> bool {
+    pub fn sat_locked(&self) -> bool {
         self.sat_lock
     }
 
-    pub(crate) fn pll_locked(&self) -> bool {
+    pub fn pll_locked(&self) -> bool {
         self.pll_lock
     }
 
-    pub(crate) fn locked(&self) -> bool {
+    pub fn locked(&self) -> bool {
         self.locked
     }
 }
@@ -271,8 +271,8 @@ mod test {
 
         fn hid_get_feature_report(
             &self,
-            report_id: u8,
-            buf: &mut [u8],
+            _report_id: u8,
+            _buf: &mut [u8],
         ) -> Result<usize, Self::InterfaceError> {
             Err(std::io::Error::new(
                 std::io::ErrorKind::Other,

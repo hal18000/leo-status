@@ -9,9 +9,11 @@ pub(crate) enum GpsdoError<InterfaceError> {
     ShortDataError { expected: usize, received: usize },
 }
 
+/// The UsbInterface trait allows for use of different USB backends, such as hidapi.
 pub(crate) trait UsbInterface {
     type InterfaceError;
 
+    /// Read a set of bytes from the device, storing them in the passed buffer. The number of stored bytes should be returned
     fn hid_read(&self, buf: &mut [u8]) -> Result<usize, Self::InterfaceError>;
 
     /// Get a feature report from the device. The result should be stored in buf, with the zeroth byte being the first data byte.
@@ -21,6 +23,8 @@ pub(crate) trait UsbInterface {
         report_id: u8,
         buf: &mut [u8],
     ) -> Result<usize, Self::InterfaceError>;
+
+    /// Get the serial number of the device. If no serial number exists on the device, then `Option::None`
     fn serial_number(&self) -> Result<Option<String>, Self::InterfaceError>;
 }
 
@@ -97,12 +101,12 @@ impl<'a, Interface: UsbInterface> GpsdoDevice<'a, Interface> {
         let pll_lock = read_bytes[1] & 0x02 == 0;
         let locked = read_bytes[1] & 0x03 == 0;
 
-        return Ok(GpsdoStatus {
+        Ok(GpsdoStatus {
             loss_count,
             sat_lock,
             pll_lock,
             locked,
-        });
+        })
     }
 }
 

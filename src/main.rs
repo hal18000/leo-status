@@ -9,8 +9,6 @@ use crate::gpsdo::GpsdoDevice;
 
 use clap::Parser;
 
-use humantime;
-
 #[derive(Parser, Debug)]
 #[command(version, about)]
 struct Args {
@@ -34,8 +32,8 @@ const PID_LEO_BODNAR_MINI_GPSDO: u16 = 0x2211;
 fn is_target_device(descriptor: &DeviceInfo) -> bool {
     let product_id = descriptor.product_id();
 
-    return descriptor.vendor_id() == VID_LEO_BONDAR
-        && (product_id == PID_LEO_BODNAR_GPSDO || product_id == PID_LEO_BODNAR_MINI_GPSDO);
+    descriptor.vendor_id() == VID_LEO_BONDAR
+        && (product_id == PID_LEO_BODNAR_GPSDO || product_id == PID_LEO_BODNAR_MINI_GPSDO)
 }
 
 struct GpsdoHidApiInterface<'a> {
@@ -64,7 +62,7 @@ impl<'a> UsbInterface for GpsdoHidApiInterface<'a> {
         report_id: u8,
         buf: &mut [u8],
     ) -> Result<usize, Self::InterfaceError> {
-        assert!(buf.len() >= 1);
+        assert!(!buf.is_empty());
         buf[0] = report_id;
 
         let size = self.driver.get_feature_report(buf)?;

@@ -37,9 +37,7 @@ impl<'a, Interface: UsbInterface> GpsdoDevice<'a, Interface> {
         GpsdoDevice { interface }
     }
 
-    pub fn serial_number(
-        &self,
-    ) -> Result<Option<String>, GpsdoError<Interface::InterfaceError>> {
+    pub fn serial_number(&self) -> Result<Option<String>, GpsdoError<Interface::InterfaceError>> {
         Ok(self.interface.serial_number()?)
     }
 

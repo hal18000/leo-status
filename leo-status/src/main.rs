@@ -1,11 +1,8 @@
-mod gpsdo;
+use leo_status_driver::{GpsdoDevice, UsbInterface};
 
 use std::time::Duration;
 
-use gpsdo::UsbInterface;
 use hidapi::{DeviceInfo, HidApi, HidDevice, HidError};
-
-use crate::gpsdo::GpsdoDevice;
 
 use clap::Parser;
 

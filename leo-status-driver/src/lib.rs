@@ -1,6 +1,8 @@
 use thiserror::Error;
 
 #[derive(Debug, Error)]
+/// An error occurred while accessing information from the GPSDO, this could either be from the underlying UsbInterface,
+/// or from the parsing logic in the leo-status-driver library.
 pub enum GpsdoError<InterfaceError> {
     #[error("underlying usb interface errored: {0}")]
     UsbInterfaceError(#[from] InterfaceError),
@@ -33,14 +35,17 @@ pub struct GpsdoDevice<'a, Interface: UsbInterface> {
 }
 
 impl<'a, Interface: UsbInterface> GpsdoDevice<'a, Interface> {
+    /// Create a new GpsdoDevice, from the given UsbInterface
     pub fn new(interface: &'a Interface) -> Self {
         GpsdoDevice { interface }
     }
 
+    /// Retrieve the serial number of the GPSDO
     pub fn serial_number(&self) -> Result<Option<String>, GpsdoError<Interface::InterfaceError>> {
         Ok(self.interface.serial_number()?)
     }
 
+    /// Retrieve the config of the GPSDO
     pub fn config(&self) -> Result<GpsdoConfig, GpsdoError<Interface::InterfaceError>> {
         let mut buf = [0u8; 61];
 
@@ -81,6 +86,7 @@ impl<'a, Interface: UsbInterface> GpsdoDevice<'a, Interface> {
         })
     }
 
+    /// Retrieve the status of the GPSDO
     pub fn status(&self) -> Result<GpsdoStatus, GpsdoError<Interface::InterfaceError>> {
         let mut buf = [0u8; 2];
         let read_count = self.interface.hid_read(&mut buf)?;
@@ -109,6 +115,7 @@ impl<'a, Interface: UsbInterface> GpsdoDevice<'a, Interface> {
 }
 
 #[derive(Debug)]
+/// Configuration parameters of a Leo Bodnar GPSDO, including derived information such as the output frequencies
 pub struct GpsdoConfig {
     output1: bool,
     output2: bool,
@@ -191,6 +198,7 @@ impl GpsdoConfig {
 }
 
 #[derive(Debug)]
+/// Status of a Leo Bodnar GPSDO, showing the lock status of the system, and how many times the system has lost it's lock
 pub struct GpsdoStatus {
     loss_count: u8,
     sat_lock: bool,

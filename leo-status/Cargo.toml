@@ -11,6 +11,6 @@ leo-status-driver = { path = "../leo-status-driver" }
 serde = { version = "1.0.195", features = ["serde_derive"] }
 serde_json = "1.0.111"
 hidapi = "2.4.1"
-clap = { version = "4.4.16", features = ["derive"] }
+clap = { version = "4.4.18", features = ["derive"] }
 humantime = "2.1.0"
 tiny_http = "0.12"

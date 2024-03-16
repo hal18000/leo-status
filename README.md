@@ -1,6 +1,6 @@
 # leo-status
 
-leo-status is a tool for monitoring a Leo Bodnar GPSDO
+leo-status is a tool for monitoring a Leo Bodnar GPSDO. It exposes a HTTP endpoint with the GPSDO status and config.
 
 The GPSDOs supported are:
 - [Leo Bodnar - Precision GPS Reference Clock](https://www.leobodnar.com/shop/index.php?main_page=product_info&cPath=107&products_id=234)
@@ -12,6 +12,8 @@ The GPSDOs supported are:
 | Windows 11   | Tested | Working |
 | Ubuntu 22.04 | Tested | Working |
 
+Please see the [openapi.yaml](./leo-status/openapi.yaml) for an example of the data returned.
+
 ## Structure
 
 This project is broken into two parts:
@@ -19,24 +21,21 @@ This project is broken into two parts:
 - [`leo-status-driver`](./leo-status-driver/), a library which can be used to interface with a Leo Bodnar GPSDO.
 - [`leo-status`](./leo-status/), a command line application which reports the status of a connected Leo Bodnar GPSDO, using the leo-status-driver library.
 
-## Usage
+## Prerequisites
 
-Please note this program is currently a work in progress. Data is currently printed to the console in a debug format.
+Ensure you have both libusb and libudev installed:
+
+Debian based systems:
+```bash
+sudo apt-get install libudev-dev libusb-1.0.0-dev
+```
+
+## Usage
 
 Quick start:
 
 ```shell
-cargo run -- --interval 1s
-```
-
-Which will give you:
-
-```
-device configuration: GpsdoConfig { output1: true, output2: true, level: 0, fin: 4687500, n3: 11, n2_hs: 11, n2_ls: 1152, n1_hs: 9, nc1_ls: 12, nc2_ls: 24, skew: 0, bw: 15 }, f3 426136, fout1 50000000, fout2 25000000
-Using device with serial number AAAABBBCCC
-config: GpsdoConfig { output1: true, output2: true, level: 0, fin: 4687500, n3: 11, n2_hs: 11, n2_ls: 1152, n1_hs: 9, nc1_ls: 12, nc2_ls: 24, skew: 0, bw: 15 }, status: GpsdoStatus { loss_count: 0, sat_lock: true, pll_lock: false, locked: false }
-config: GpsdoConfig { output1: true, output2: true, level: 0, fin: 4687500, n3: 11, n2_hs: 11, n2_ls: 1152, n1_hs: 9, nc1_ls: 12, nc2_ls: 24, skew: 0, bw: 15 }, status: GpsdoStatus { loss_count: 0, sat_lock: true, pll_lock: false, locked: false }
-config: GpsdoConfig { output1: true, output2: true, level: 0, fin: 4687500, n3: 11, n2_hs: 11, n2_ls: 1152, n1_hs: 9, nc1_ls: 12, nc2_ls: 24, skew: 0, bw: 15 }, status: GpsdoStatus { loss_count: 1, sat_lock: false, pll_lock: false, locked: false }
+cargo run -- --interval 1s --http-host 0.0.0.0:8080
 ```
 
 For more usage advice, issue the `--help` command.

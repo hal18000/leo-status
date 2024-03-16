@@ -91,12 +91,13 @@ Which returns
 For more usage advice, issue the `--help` command.
 
 ```
-Usage: leo-status [OPTIONS] --interval <INTERVAL>
+Usage: leo-status [OPTIONS] --interval <INTERVAL> --http-host <HTTP_HOST>
 
 Options:
       --interval <INTERVAL>            Interval to poll the GPSDO for status
       --serial-number <SERIAL_NUMBER>  Serial number of the Leo Bodnar GPSDO device to use, if not specified any Leo Bodnar GPSDO connected will be used
       --stdout                         Print status of GPSDO to the console in JSON format
+      --http-host <HTTP_HOST>          HTTP host to listen on
   -h, --help                           Print help
   -V, --version                        Print version
 ```

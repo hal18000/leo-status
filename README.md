@@ -38,6 +38,56 @@ Quick start:
 cargo run -- --interval 1s --http-host 0.0.0.0:8080
 ```
 
+### Status Endpoint
+
+Access the `/status` endpoint
+```shell
+curl localhost:8080/status | jq
+```
+
+Which returns
+```json
+{
+  "loss_count": 1,
+  "sat_lock": false,
+  "pll_lock": true,
+  "locked": false
+}
+```
+
+### Config Endpoint
+
+Access the `/config` endpoint
+```shell
+curl localhost:8080/config | jq
+```
+
+Which returns
+```json
+{
+  "output1": true,
+  "output2": true,
+  "level": 8,
+  "pll_params": {
+    "fin": 4296875,
+    "n3": 30,
+    "n2_hs": 10,
+    "n2_ls": 3840,
+    "n1_hs": 11,
+    "nc1_ls": 10,
+    "nc2_ls": 20,
+    "skew": 0,
+    "bw": 15,
+    "f3": 143229,
+    "fosc": 5500000000
+  },
+  "fout1": 50000000,
+  "fout2": 25000000
+}
+```
+
+### Further information
+
 For more usage advice, issue the `--help` command.
 
 ```

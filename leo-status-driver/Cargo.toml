@@ -4,6 +4,6 @@ version = "1.0.2"
 edition = "2021"
 
 [dependencies]
-thiserror = "1.0.58"
+thiserror = "1.0.61"
 
 [lib]

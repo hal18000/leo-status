@@ -129,11 +129,17 @@ fn main() {
                     let metric_families = metrics_registry.gather();
                     let mut buffer = vec![];
                     let encoder = TextEncoder::new();
-                    encoder.encode(&metric_families, &mut buffer).unwrap();
 
-                    Response::from_data(buffer).with_header(
-                        Header::from_bytes("Content-Type", encoder.format_type()).unwrap(),
-                    )
+                    if let Err(error) = encoder.encode(&metric_families, &mut buffer) {
+                        eprintln!("failed to encode metrics: {}", error);
+
+                        Response::from_data("Failed to encode metrics").with_status_code(500)
+                    } else {
+                        Response::from_data(buffer).with_header(
+                            Header::from_bytes("Content-Type", encoder.format_type())
+                                .expect("failed to set Content-Type header"),
+                        )
+                    }
                 }
 
                 _ => Response::from_string("Not Found").with_status_code(404),

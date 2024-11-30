@@ -1,6 +1,7 @@
 mod dto;
 
 use leo_status_driver::{interface::GpsdoHidApiInterface, GpsdoDevice};
+use prometheus::{Encoder, IntGauge, Registry, TextEncoder};
 use tiny_http::{Header, Response, Server};
 
 use std::{
@@ -36,6 +37,22 @@ struct Args {
 }
 
 fn main() {
+    let metrics_registry = Registry::new();
+    let lock_status = IntGauge::new("lock_status", "the status of the overall lock").unwrap();
+    let sat_lock_status =
+        IntGauge::new("sat_lock_status", "the status of the gps satellite lock").unwrap();
+    let pll_lock_status = IntGauge::new("pll_lock_status", "the status of the pll lock").unwrap();
+
+    metrics_registry
+        .register(Box::new(lock_status.clone()))
+        .unwrap();
+    metrics_registry
+        .register(Box::new(sat_lock_status.clone()))
+        .unwrap();
+    metrics_registry
+        .register(Box::new(pll_lock_status.clone()))
+        .unwrap();
+
     let args = Args::parse();
 
     let hid_api = HidApi::new().expect("failed to create hidapi context");
@@ -108,6 +125,16 @@ fn main() {
                             .with_status_code(503),
                     }
                 }
+                "/metrics" | "/metrics/" => {
+                    let metric_families = metrics_registry.gather();
+                    let mut buffer = vec![];
+                    let encoder = TextEncoder::new();
+                    encoder.encode(&metric_families, &mut buffer).unwrap();
+
+                    Response::from_data(buffer).with_header(
+                        Header::from_bytes("Content-Type", encoder.format_type()).unwrap(),
+                    )
+                }
 
                 _ => Response::from_string("Not Found").with_status_code(404),
             };
@@ -121,6 +148,10 @@ fn main() {
     loop {
         let config = gpsdo.config().expect("failed to get config from gpsdo");
         let status = gpsdo.status().expect("failed to get status from gpsdo");
+
+        lock_status.set(if status.locked() { 1 } else { 0 });
+        sat_lock_status.set(if status.sat_locked() { 1 } else { 0 });
+        pll_lock_status.set(if status.pll_locked() { 1 } else { 0 });
 
         *config_mutex.write().unwrap() = Some(config.into());
         *status_mutex.write().unwrap() = Some(status.into());

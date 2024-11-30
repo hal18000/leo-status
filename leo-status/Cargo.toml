@@ -13,3 +13,4 @@ hidapi = "2.6.3"
 clap = { version = "4.5.21", features = ["derive"] }
 humantime = "2.1.0"
 tiny_http = "0.12"
+prometheus = "0.13.4"

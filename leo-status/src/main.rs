@@ -1,6 +1,7 @@
 mod dto;
 
 use leo_status_driver::{interface::GpsdoHidApiInterface, GpsdoDevice};
+use prometheus::{Encoder, IntGauge, Registry, TextEncoder};
 use tiny_http::{Header, Response, Server};
 
 use std::{
@@ -36,6 +37,22 @@ struct Args {
 }
 
 fn main() {
+    let metrics_registry = Registry::new();
+    let lock_status = IntGauge::new("lock_status", "the status of the overall lock").unwrap();
+    let sat_lock_status =
+        IntGauge::new("sat_lock_status", "the status of the gps satellite lock").unwrap();
+    let pll_lock_status = IntGauge::new("pll_lock_status", "the status of the pll lock").unwrap();
+
+    metrics_registry
+        .register(Box::new(lock_status.clone()))
+        .unwrap();
+    metrics_registry
+        .register(Box::new(sat_lock_status.clone()))
+        .unwrap();
+    metrics_registry
+        .register(Box::new(pll_lock_status.clone()))
+        .unwrap();
+
     let args = Args::parse();
 
     let hid_api = HidApi::new().expect("failed to create hidapi context");
@@ -108,6 +125,22 @@ fn main() {
                             .with_status_code(503),
                     }
                 }
+                "/metrics" | "/metrics/" => {
+                    let metric_families = metrics_registry.gather();
+                    let mut buffer = vec![];
+                    let encoder = TextEncoder::new();
+
+                    if let Err(error) = encoder.encode(&metric_families, &mut buffer) {
+                        eprintln!("failed to encode metrics: {}", error);
+
+                        Response::from_data("Failed to encode metrics").with_status_code(500)
+                    } else {
+                        Response::from_data(buffer).with_header(
+                            Header::from_bytes("Content-Type", encoder.format_type())
+                                .expect("failed to set Content-Type header"),
+                        )
+                    }
+                }
 
                 _ => Response::from_string("Not Found").with_status_code(404),
             };
@@ -121,6 +154,10 @@ fn main() {
     loop {
         let config = gpsdo.config().expect("failed to get config from gpsdo");
         let status = gpsdo.status().expect("failed to get status from gpsdo");
+
+        lock_status.set(status.locked().into());
+        sat_lock_status.set(status.sat_locked().into());
+        pll_lock_status.set(status.pll_locked().into());
 
         *config_mutex.write().unwrap() = Some(config.into());
         *status_mutex.write().unwrap() = Some(status.into());

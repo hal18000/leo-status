@@ -86,6 +86,24 @@ Which returns
 }
 ```
 
+### Prometheus Endpoint
+
+Recording the status of your Leo Bodnar device into Prometheus is supported through the `/metrics`, endpoint, simply add it as an endpoint to your Prometheus. An example is below for the `static_configs` method.
+
+```yaml
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets:
+        - 127.0.0.1:8000
+```
+
+The following metrics are exposed:
+
+- `lock_status` - the status of the overall lock, this is the same as the `locked` field in the status endpoint
+- `pll_lock_status` - the status of the PLL lock `pll_lock` field in the status endpoint
+- `sat_lock_status` - the status of the GPS lock, this is the same as the `sat_lock` field in the status endpoint
+
 ### Further information
 
 For more usage advice, issue the `--help` command.

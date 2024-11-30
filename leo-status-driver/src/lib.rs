@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+pub mod interface;
+
 #[derive(Debug, Error)]
 /// An error occurred while accessing information from the GPSDO, this could either be from the underlying UsbInterface,
 /// or from the parsing logic in the leo-status-driver library.

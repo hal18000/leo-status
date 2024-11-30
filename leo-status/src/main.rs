@@ -1,6 +1,6 @@
 mod dto;
 
-use leo_status_driver::{GpsdoDevice, interface::GpsdoHidApiInterface};
+use leo_status_driver::{interface::GpsdoHidApiInterface, GpsdoDevice};
 use tiny_http::{Header, Response, Server};
 
 use std::{

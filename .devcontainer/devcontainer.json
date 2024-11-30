@@ -6,6 +6,8 @@
 		"dockerfile": "Dockerfile"
 	},
 
+	"updateContentCommand": "cargo fetch",
+
 	"customizations": {
 		"vscode": {
 			"extensions": [

@@ -1,5 +1,6 @@
 use thiserror::Error;
 
+pub mod consts;
 pub mod interface;
 
 #[derive(Debug, Error)]

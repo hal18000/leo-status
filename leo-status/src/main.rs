@@ -10,7 +10,7 @@ use std::{
     time::Duration,
 };
 
-use hidapi::{DeviceInfo, HidApi};
+use hidapi::HidApi;
 
 use clap::Parser;
 
@@ -35,37 +35,13 @@ struct Args {
     http_host: SocketAddr,
 }
 
-const VID_LEO_BONDAR: u16 = 0x1dd2;
-const PID_LEO_BODNAR_GPSDO: u16 = 0x2210;
-const PID_LEO_BODNAR_MINI_GPSDO: u16 = 0x2211;
-
-fn is_target_device(descriptor: &DeviceInfo) -> bool {
-    let product_id = descriptor.product_id();
-
-    descriptor.vendor_id() == VID_LEO_BONDAR
-        && (product_id == PID_LEO_BODNAR_GPSDO || product_id == PID_LEO_BODNAR_MINI_GPSDO)
-}
-
 fn main() {
     let args = Args::parse();
 
     let hid_api = HidApi::new().expect("failed to create hidapi context");
 
-    let device = match args.serial_number {
-        // Look for a device that matches the serial number and is from Leo Bodnar
-        Some(serial_number) => hid_api.device_list().find(|&descriptor| {
-            descriptor.vendor_id() == VID_LEO_BONDAR
-                && descriptor
-                    .serial_number()
-                    .is_some_and(|device_serial| device_serial == serial_number)
-        }),
-
-        // Look for any device that is a GPSDO
-        None => hid_api
-            .device_list()
-            .find(|&descriptor| is_target_device(descriptor)),
-    }
-    .expect("could not find leo bodnar gpsdo");
+    let device = GpsdoHidApiInterface::find_gpsdo(&hid_api, args.serial_number)
+        .expect("could not find leo bodnar gpsdo");
 
     let conn = device
         .open_device(&hid_api)

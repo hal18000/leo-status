@@ -149,9 +149,9 @@ fn main() {
         let config = gpsdo.config().expect("failed to get config from gpsdo");
         let status = gpsdo.status().expect("failed to get status from gpsdo");
 
-        lock_status.set(if status.locked() { 1 } else { 0 });
-        sat_lock_status.set(if status.sat_locked() { 1 } else { 0 });
-        pll_lock_status.set(if status.pll_locked() { 1 } else { 0 });
+        lock_status.set(status.locked().into());
+        sat_lock_status.set(status.sat_locked().into());
+        pll_lock_status.set(status.pll_locked().into());
 
         *config_mutex.write().unwrap() = Some(config.into());
         *status_mutex.write().unwrap() = Some(status.into());

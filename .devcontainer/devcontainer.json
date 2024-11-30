@@ -2,7 +2,11 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/rust
 {
 	"name": "Rust",
-	"image": "mcr.microsoft.com/devcontainers/rust:1-1-bullseye",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+
+	"updateContentCommand": "cargo fetch",
 
 	"customizations": {
 		"vscode": {

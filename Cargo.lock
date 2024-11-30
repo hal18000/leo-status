@@ -186,7 +186,7 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "leo-status"
-version = "1.0.5"
+version = "2.0.0"
 dependencies = [
  "clap",
  "hidapi",
@@ -200,7 +200,7 @@ dependencies = [
 
 [[package]]
 name = "leo-status-driver"
-version = "1.0.5"
+version = "2.0.0"
 dependencies = [
  "hidapi",
  "thiserror 2.0.3",
